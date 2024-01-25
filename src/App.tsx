@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {StyleSheet, View, Text, FlatList, SafeAreaView, TextInput, Button} from 'react-native';
 import IconButton from "./components/iconButton";
+import { StatusBar } from 'react-native';
 
 type Todo = {
     id: string;
@@ -57,7 +58,26 @@ export default function App() {
         )
     }
 
+    const FormButtons = () => {
+        return (
+            <View style={styles.formButtons}>
+                {itemEdited &&
+                    <Button title='Cancel'
+                        onPress={() => {
+                            setItemEdited(null);
+                            setInputText('');
+                        }}
+                    />
+                }
+                <Button title={itemEdited ? 'Save' : 'Add Todo'}
+                        onPress={itemEdited ? saveTodo : addTodo}
+                />
+            </View>
+        )
+    }
+
     return (
+        // for iOS to handle status area...
         <SafeAreaView style={styles.container}>
             <Text style={styles.heading}>To Do App</Text>
             <TextInput style={styles.input}
@@ -65,9 +85,7 @@ export default function App() {
                        onChangeText={setInputText}
                        placeholder='Enter a todo'
             />
-            <Button title={itemEdited ? 'Save' : 'Add Todo'}
-                    onPress={itemEdited ? saveTodo : addTodo}
-            />
+            <FormButtons/>
             <FlatList data={todos}
                       renderItem={({item}) => todoItem(item)}
                       keyExtractor={item => item.id}/>
@@ -78,7 +96,7 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 40,
+        marginTop: StatusBar.currentHeight + 20, // for Android to handle camera etc...
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
@@ -107,6 +125,10 @@ const styles = StyleSheet.create({
     },
     buttons: {
         flexDirection: "row",
+    },
+    formButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: '35%'
     }
-
 });
