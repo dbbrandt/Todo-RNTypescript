@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {StyleSheet, View, Text, FlatList, SafeAreaView, TextInput, Button} from 'react-native';
-import IconButton from "components/iconButton";
+import IconButton from "./components/iconButton";
 
 type Todo = {
     id: string;
@@ -10,7 +10,7 @@ type Todo = {
 export default function App() {
     const [inputText, setInputText] = useState('');
     const [todos, setTodos] = useState<Todo[]>([]);
-    const [edit, setEdit] = useState<Todo | null>(null);
+    const [itemEdited, setItemEdited] = useState<Todo | null>(null);
     const addTodo = () => {
         if (inputText.trim()) {
             setTodos((prevTodos) => [...prevTodos,
@@ -20,24 +20,21 @@ export default function App() {
     }
 
     const saveTodo = () => {
-        if (edit) {
+        if (itemEdited) {
             setInputText('');
             setTodos((prevTodos) =>
-                [...prevTodos.filter((item) => item.id != edit.id),
-                    {id: Date.now().toString(), name: inputText}
-
-                ]);
-            setEdit(null);
+                prevTodos.map((item) => item.id == itemEdited.id ?
+                    {...item, name: inputText} : item));
+            setItemEdited(null);
         }
     }
 
     const handleEdit = (todo: Todo) => {
-        setEdit(todo);
+        setItemEdited(todo);
         setInputText(todo.name);
     }
 
     const handleDelete = (todo: Todo) => {
-        console.log('Delete!');
         setTodos((prevTodos) =>
             prevTodos.filter((item) => item.id != todo.id));
     }
@@ -68,8 +65,8 @@ export default function App() {
                        onChangeText={setInputText}
                        placeholder='Enter a todo'
             />
-            <Button title={edit ? 'Save' : 'Add Todo'}
-                    onPress={edit ? saveTodo : addTodo}
+            <Button title={itemEdited ? 'Save' : 'Add Todo'}
+                    onPress={itemEdited ? saveTodo : addTodo}
             />
             <FlatList data={todos}
                       renderItem={({item}) => todoItem(item)}
